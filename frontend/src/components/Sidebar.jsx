@@ -23,6 +23,10 @@ const Sidebar = ({ isSidebarOpen }) => {
   const location = useLocation();
   const isChatPage = location.pathname.startsWith("/chat");
 
+  if (location.pathname === "/login" || location.pathname === "/register") {
+    return null;
+  }
+
   const handleNewChat = () => {
     const newchat = prompt("Enter Chat Title");
     if (newchat && newchat.trim() != "") {

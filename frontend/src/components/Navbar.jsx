@@ -1,4 +1,12 @@
+import { useLocation, Link } from "react-router-dom";
+
 const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
+  const location = useLocation();
+
+  if (location.pathname == "/login" || location.pathname == "/register") {
+    return null;
+  }
+
   return (
     <div className="absolute backdrop-blur-lg z-[999] top-0 left-0  w-full flex items-center justify-between px-5 md:px-10 py-3 md:py-5">
       <div className="left w-full md:w-max flex items-baseline justify-between md:justify-center gap-5">
@@ -22,12 +30,18 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
         </svg>
       </div>
       <div className="right flex items-center justify-center gap-3">
-        <div className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm">
+        <Link
+          to={"/login"}
+          className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
+        >
           Log in
-        </div>
-        <div className="py-1.5 hidden md:block px-3 border border-gray-600 rounded-full text-sm">
+        </Link>
+        <Link
+          to={"/register"}
+          className="py-1.5 hidden md:block px-3 border border-gray-600 rounded-full text-sm"
+        >
           Sign up for free
-        </div>
+        </Link>
       </div>
     </div>
   );
