@@ -5,13 +5,12 @@ import Sidebar from "./components/Sidebar";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  console.log(isSidebarOpen);
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
   return (
-    <div className="text-[#fff]">
+    <div className="text-[#fff] h-screen w-screen">
       <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       <MainRoutes />
       <Sidebar isSidebarOpen={isSidebarOpen} />
