@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addChat } from "../store/slices/chatSlice";
+import { addChat, selectChat } from "../store/slices/chatSlice";
 import axios from "axios";
+import { useState } from "react";
 
 const Sidebar = ({ isSidebarOpen }) => {
   const { user } = useSelector((state) => state.auth);
@@ -19,6 +20,7 @@ const Sidebar = ({ isSidebarOpen }) => {
 
   const dispatch = useDispatch();
   const AllChats = useSelector((state) => state.chats.chats);
+  const activeId = useSelector((state) => state.chats.selectedChatId);
 
   const location = useLocation();
   const isChatPage = location.pathname.startsWith("/chat");
@@ -100,12 +102,15 @@ const Sidebar = ({ isSidebarOpen }) => {
                   return (
                     <div
                       key={idx}
-                      className="py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 transition-colors"
+                      onClick={() => dispatch(selectChat(chat._id))}
+                      className={`py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 ${
+                        activeId == chat._id ? "border border-[#606060]" : ""
+                      }`}
                     >
                       {chat.title}
                     </div>
                   );
-                })
+                }).reverse()
               )}
             </div>
             <div className="profile gap-2 h-[10%] flex items-center justify-start px-4 w-full">
