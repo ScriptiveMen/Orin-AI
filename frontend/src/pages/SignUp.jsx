@@ -1,7 +1,40 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { currentuser } from "../store/slices/userSlice";
 
 const SignUp = () => {
+  const { register, handleSubmit, reset } = useForm();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const registerHandler = (data) => {
+    axios
+      .post(
+        "http://localhost:3000/api/auth/register",
+        {
+          fullname: {
+            firstname: data.firstname,
+            lastname: data.lastname,
+          },
+          email: data.email,
+          password: data.password,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        console.log(res);
+        navigate("/chat");
+        dispatch(currentuser(res.data.user));
+      })
+      .catch((err) => {
+        console.log("Registration failed", err);
+      });
+
+    reset();
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111] px-4 md:px-15">
       <div className="w-full max-w-md bg-[#1a1a1a] rounded-2xl shadow-xl p-8 md:p-10">
@@ -14,7 +47,10 @@ const SignUp = () => {
         </p>
 
         {/* Form */}
-        <form className="mt-8 space-y-5">
+        <form
+          onSubmit={handleSubmit(registerHandler)}
+          className="mt-8 space-y-5"
+        >
           {/* First + Last Name */}
           <div className="flex gap-4">
             <div className="flex-1">
@@ -24,6 +60,7 @@ const SignUp = () => {
               <input
                 type="text"
                 placeholder="John"
+                {...register("firstname", { required: true })}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
             </div>
@@ -34,6 +71,7 @@ const SignUp = () => {
               <input
                 type="text"
                 placeholder="Doe"
+                {...register("lastname", { required: true })}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
               />
             </div>
@@ -47,6 +85,7 @@ const SignUp = () => {
             <input
               type="email"
               placeholder="you@example.com"
+              {...register("email", { required: true })}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
             />
           </div>
@@ -59,6 +98,7 @@ const SignUp = () => {
             <input
               type="password"
               placeholder="••••••••"
+              {...register("password", { required: true })}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
             />
           </div>

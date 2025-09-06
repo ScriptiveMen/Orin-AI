@@ -1,11 +1,33 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { currentuser } from "../store/slices/userSlice";
 
 const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
+  const { user } = useSelector((state) => state.auth);
+
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   if (location.pathname == "/login" || location.pathname == "/register") {
     return null;
   }
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+
+      dispatch(currentuser(null));
+      navigate("/");
+    } catch (err) {
+      console.log("Error in logout", err);
+    }
+  };
 
   return (
     <div className="absolute backdrop-blur-lg z-[999] top-0 left-0  w-full flex items-center justify-between px-5 md:px-10 py-3 md:py-5">
@@ -30,18 +52,33 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
         </svg>
       </div>
       <div className="right flex items-center justify-center gap-3">
-        <Link
-          to={"/login"}
-          className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
-        >
-          Log in
-        </Link>
-        <Link
-          to={"/register"}
-          className="py-1.5 hidden md:block px-3 border border-gray-600 rounded-full text-sm"
-        >
-          Sign up for free
-        </Link>
+        {user ? (
+          <Link
+            to={"#"}
+            onClick={(e) => {
+              e.preventDefault();
+              handleLogout();
+            }}
+            className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
+          >
+            Logout
+          </Link>
+        ) : (
+          <>
+            <Link
+              to={"/login"}
+              className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
+            >
+              Log in
+            </Link>
+            <Link
+              to={"/register"}
+              className="py-1.5 hidden md:block px-3 border border-gray-600 rounded-full text-sm"
+            >
+              Sign up for free
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

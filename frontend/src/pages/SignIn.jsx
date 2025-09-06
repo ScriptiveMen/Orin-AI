@@ -1,7 +1,35 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { currentuser } from "../store/slices/userSlice";
 
 const SignIn = () => {
+  const { register, handleSubmit, reset } = useForm();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const loginHandler = (data) => {
+    axios
+      .post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email: data.email,
+          password: data.password,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        navigate("/chat");
+        dispatch(currentuser(res.data.user));
+      })
+      .catch((err) => {
+        console.log("Login failed", err);
+      });
+
+    reset();
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111] px-4 md:px-15">
       <div className="w-full max-w-md bg-[#1a1a1a] rounded-2xl shadow-xl p-8 md:p-10">
@@ -14,7 +42,7 @@ const SignIn = () => {
         </p>
 
         {/* Form */}
-        <form className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit(loginHandler)} className="mt-8 space-y-5">
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -23,6 +51,7 @@ const SignIn = () => {
             <input
               type="email"
               placeholder="you@example.com"
+              {...register("email", { required: true })}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
             />
           </div>
@@ -35,6 +64,7 @@ const SignIn = () => {
             <input
               type="password"
               placeholder="••••••••"
+              {...register("password", { required: true })}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-700 bg-[#111] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition-all"
             />
           </div>

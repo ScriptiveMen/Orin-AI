@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Sidebar = ({ isSidebarOpen }) => {
+  const { user } = useSelector((state) => state.auth);
+
   const homeMenus = [
     "Research",
     "Safety",
@@ -99,10 +102,10 @@ const Sidebar = ({ isSidebarOpen }) => {
             </div>
             <div className="profile gap-2 h-[10%] flex items-center justify-start px-4 w-full">
               <div className="circle h-7 w-7 rounded-full bg-blue-500 flex items-center justify-center">
-                S
+                {user?.fullname?.firstname[0]?.toUpperCase()}
               </div>
               <div className="text">
-                <p className="leading-5">Satya</p>
+                <p className="leading-5">{user?.fullname?.firstname}</p>
                 <span className="block font-thin text-[#949494]  text-[0.7rem]">
                   Free
                 </span>
