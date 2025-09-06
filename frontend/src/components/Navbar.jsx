@@ -2,6 +2,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { currentuser } from "../store/slices/userSlice";
+import { clearChats } from "../store/slices/chatSlice";
 
 const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
   const { user } = useSelector((state) => state.auth);
@@ -23,6 +24,7 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
       );
 
       dispatch(currentuser(null));
+      dispatch(clearChats());
       navigate("/");
     } catch (err) {
       console.log("Error in logout", err);

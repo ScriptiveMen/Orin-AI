@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addChat } from "../store/slices/chatSlice";
+import axios from "axios";
 
 const Sidebar = ({ isSidebarOpen }) => {
   const { user } = useSelector((state) => state.auth);
@@ -16,26 +17,27 @@ const Sidebar = ({ isSidebarOpen }) => {
     "News",
   ];
 
-  const [chats, setchats] = useState([
-    { title: "Test1" },
-    { title: "Project Ideas" },
-    { title: "Shopping List" },
-    { title: "Travel Plans" },
-  ]);
+  const dispatch = useDispatch();
+  const AllChats = useSelector((state) => state.chats.chats);
 
   const location = useLocation();
   const isChatPage = location.pathname.startsWith("/chat");
 
-  if (location.pathname === "/login" || location.pathname === "/register") {
-    return null;
-  }
-
-  const handleNewChat = () => {
+  const handleNewChat = async () => {
     const newchat = prompt("Enter Chat Title");
     if (newchat && newchat.trim() != "") {
-      setchats((prev) => [...prev, { title: newchat }]);
+      const res = await axios.post(
+        "http://localhost:3000/api/chat/",
+        { title: newchat },
+        { withCredentials: true }
+      );
+      dispatch(addChat(res.data.chat));
     }
   };
+
+  if (location.pathname === "/login" || location.pathname === "/register") {
+    return;
+  }
 
   return (
     <div
@@ -89,16 +91,22 @@ const Sidebar = ({ isSidebarOpen }) => {
           <h4 className="px-3  pt-7 font-thin text-[#949494]">Chats</h4>
           <div className="chats pt-2 h-[100vh] md:h-[92vh] ">
             <div className="chats h-[70%] overflow-y-scroll">
-              {chats.map((chat, idx) => {
-                return (
-                  <div
-                    key={idx}
-                    className="py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 transition-colors"
-                  >
-                    {chat.title}
-                  </div>
-                );
-              })}
+              {AllChats.length == 0 ? (
+                <div className="py-2 text-sm font-light text-center text-[#949494]">
+                  No chats available
+                </div>
+              ) : (
+                AllChats.map((chat, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      className="py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 transition-colors"
+                    >
+                      {chat.title}
+                    </div>
+                  );
+                })
+              )}
             </div>
             <div className="profile gap-2 h-[10%] flex items-center justify-start px-4 w-full">
               <div className="circle h-7 w-7 rounded-full bg-blue-500 flex items-center justify-center">

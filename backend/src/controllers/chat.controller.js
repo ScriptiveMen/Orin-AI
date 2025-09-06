@@ -18,6 +18,17 @@ async function createChat(req, res) {
   });
 }
 
+async function getChat(req, res) {
+  const user = req.user;
+  const chats = await chatModel.find({ user: user._id });
+
+  res.status(200).json({
+    message: "Chats retrived sucessfully",
+    chats,
+  });
+}
+
 module.exports = {
   createChat,
+  getChat,
 };

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import MainRoutes from "./routes/MainRoutes";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { currentuser } from "./store/slices/userSlice";
+import { setChats } from "./store/slices/chatSlice";
 
 const App = () => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const toggleSidebar = () => {
@@ -24,6 +26,22 @@ const App = () => {
         dispatch(currentuser(null));
       });
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        if (!user) return;
+        const res = await axios.get("http://localhost:3000/api/chat", {
+          withCredentials: true,
+        });
+        dispatch(setChats(res.data.chats));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchChats();
+  }, [user, dispatch]);
 
   return (
     <div className="text-[#fff] h-screen w-screen">
