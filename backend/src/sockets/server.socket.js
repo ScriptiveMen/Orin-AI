@@ -48,8 +48,8 @@ function initSocketServer(httpServer) {
         messageId: userMsg._id,
         vectors: messageVector,
         metadata: {
-          userId: socket.user._id,
-          chatId: data.chat,
+          user: socket.user._id,
+          chat: data.chat,
           text: data.message,
         },
       });

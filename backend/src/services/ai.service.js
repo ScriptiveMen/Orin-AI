@@ -18,7 +18,6 @@ async function generateResponse(content) {
   
   <style>
     - Clear, concise, and professional tone.  
-    - Use <b>, <i>, <ul>, <li>, <code>, and other HTML tags for structured, readable answers.  
     - Provide step-by-step explanations when helpful.  
     - Adapt style:
       <use-case type="definition">Give short, clear meaning + example.</use-case>  

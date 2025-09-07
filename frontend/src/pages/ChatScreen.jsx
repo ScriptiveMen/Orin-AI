@@ -3,29 +3,9 @@ import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import { addModelMessage, addUserMessage } from "../store/slices/messageSlice";
 import EmptyChat from "../components/EmptyChat";
+import ReactMarkdown from "react-markdown";
 
 const ChatScreen = () => {
-  // const [messages, setmessages] = useState([
-  //   {
-  //     message: "Hi Orin AI",
-  //     role: "user",
-  //     time: new Date().toLocaleTimeString([], {
-  //       hour: "numeric",
-  //       minute: "2-digit",
-  //       hour12: true,
-  //     }),
-  //   },
-  //   {
-  //     message: "Hi, How can i help you today?",
-  //     role: "bot",
-  //     time: new Date().toLocaleTimeString([], {
-  //       hour: "numeric",
-  //       minute: "2-digit",
-  //       hour12: true,
-  //     }),
-  //   },
-  // ]);
-
   const messages = useSelector((state) => state.messages.messages);
 
   const [socket, setSocket] = useState();
@@ -99,7 +79,7 @@ const ChatScreen = () => {
         </form>
       </div>
 
-      <div className="chatarea hide-scrollbar pb-10 overflow-y-scroll h-[90%] flex flex-col gap-5 w-full py-2 md:w-[60%]">
+      <div className="chatarea hide-scrollbar pb-10 overflow-y-scroll h-[90%] flex flex-col gap-7 md:gap-10 w-full py-2 md:w-[60%]">
         {messages.length == 0 ? (
           <EmptyChat />
         ) : (
@@ -122,7 +102,10 @@ const ChatScreen = () => {
                 key={idx}
                 className="botmsg w-[80%] flex items-center self-start justify-start gap-2"
               >
-                <p className="px-3 py-1.5 font-thin text-base">{msg.message}</p>
+                <div className="px-3 py-1.5 font-thin text-base">
+                  {" "}
+                  <ReactMarkdown>{msg.message}</ReactMarkdown>
+                </div>
               </div>
             );
           })

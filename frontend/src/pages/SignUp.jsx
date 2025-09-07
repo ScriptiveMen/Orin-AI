@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { currentuser } from "../store/slices/userSlice";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -29,6 +30,10 @@ const SignUp = () => {
       })
       .catch((err) => {
         console.log("Registration failed", err);
+        toast.error("Something went wrong!");
+      })
+      .finally(() => {
+        dispatch(setLoading(false));
       });
 
     reset();

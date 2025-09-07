@@ -4,8 +4,9 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { currentuser } from "./store/slices/userSlice";
+import { currentuser, setLoading } from "./store/slices/userSlice";
 import { setChats } from "./store/slices/chatSlice";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,8 @@ const App = () => {
     axios
       .get("http://localhost:3000/api/auth/me", { withCredentials: true })
       .then((res) => dispatch(currentuser(res.data.user)))
-      .catch(() => dispatch(currentuser(null)));
+      .catch(() => dispatch(currentuser(null)))
+      .finally(() => dispatch(setLoading(false)));
   }, [dispatch]);
 
   useEffect(() => {
@@ -50,6 +52,7 @@ const App = () => {
       <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       <MainRoutes />
       <Sidebar isSidebarOpen={isSidebarOpen} />
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
     </div>
   );
 };

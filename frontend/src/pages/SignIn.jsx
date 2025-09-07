@@ -2,7 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { currentuser } from "../store/slices/userSlice";
+import { currentuser, setLoading } from "../store/slices/userSlice";
+import { toast } from "react-toastify";
 
 const SignIn = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -24,7 +25,11 @@ const SignIn = () => {
         dispatch(currentuser(res.data.user));
       })
       .catch((err) => {
-        console.log("Login failed", err);
+        toast.error("Invalid email or password!");
+      })
+      .finally(() => {
+        // stop loading no matter success or error
+        dispatch(setLoading(false));
       });
 
     reset();
