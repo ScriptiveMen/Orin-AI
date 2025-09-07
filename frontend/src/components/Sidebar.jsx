@@ -2,7 +2,8 @@ import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addChat, selectChat } from "../store/slices/chatSlice";
 import axios from "axios";
-import { useState } from "react";
+import { act, useEffect, useState } from "react";
+import { setMessages } from "../store/slices/messageSlice";
 
 const Sidebar = ({ isSidebarOpen }) => {
   const { user } = useSelector((state) => state.auth);
@@ -34,8 +35,35 @@ const Sidebar = ({ isSidebarOpen }) => {
         { withCredentials: true }
       );
       dispatch(addChat(res.data.chat));
+      dispatch(selectChat(res.data.chat.id));
     }
   };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!activeId) return;
+
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/chat/message/${activeId}`,
+          { withCredentials: true }
+        );
+
+        const formattedMessage = res.data.messages.map((msg) => {
+          return {
+            message: msg.content,
+            role: msg.role,
+          };
+        });
+
+        dispatch(setMessages(formattedMessage));
+      } catch (err) {
+        console.log("Error while fetching messages", err);
+      }
+    };
+
+    fetchMessages();
+  }, [activeId, dispatch]);
 
   if (location.pathname === "/login" || location.pathname === "/register") {
     return;
@@ -104,7 +132,9 @@ const Sidebar = ({ isSidebarOpen }) => {
                       key={idx}
                       onClick={() => dispatch(selectChat(chat._id))}
                       className={`py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 ${
-                        activeId == chat._id ? "border border-[#606060]" : ""
+                        activeId == chat._id || activeId === chat.id
+                          ? "border border-[#606060]"
+                          : ""
                       }`}
                     >
                       {chat.title}
@@ -132,3 +162,5 @@ const Sidebar = ({ isSidebarOpen }) => {
 };
 
 export default Sidebar;
+
+//

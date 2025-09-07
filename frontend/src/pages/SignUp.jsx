@@ -24,7 +24,6 @@ const SignUp = () => {
         { withCredentials: true }
       )
       .then((res) => {
-        console.log(res);
         navigate("/chat");
         dispatch(currentuser(res.data.user));
       })
