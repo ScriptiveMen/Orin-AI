@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { currentuser } from "../store/slices/userSlice";
+import { currentuser, setLoading } from "../store/slices/userSlice";
 import { toast } from "react-toastify";
 
 const SignUp = () => {
