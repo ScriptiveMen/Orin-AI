@@ -13,7 +13,7 @@ const SignUp = () => {
   const registerHandler = (data) => {
     axios
       .post(
-        "http://localhost:3000/api/auth/register",
+        "https://mern-chatbot-of4m.onrender.com/api/auth/register",
         {
           fullname: {
             firstname: data.firstname,

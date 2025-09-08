@@ -19,7 +19,7 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/logout",
+        "https://mern-chatbot-of4m.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );

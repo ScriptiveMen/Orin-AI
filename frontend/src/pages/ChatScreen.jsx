@@ -37,7 +37,9 @@ const ChatScreen = () => {
   };
 
   useEffect(() => {
-    const tempSocket = io("http://localhost:3000", { withCredentials: true });
+    const tempSocket = io("https://mern-chatbot-of4m.onrender.com", {
+      withCredentials: true,
+    });
     tempSocket.on("ai-response", (message) => {
       dispatch(addModelMessage(message.content));
       setIsTyping(false);

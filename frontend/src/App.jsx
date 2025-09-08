@@ -25,7 +25,9 @@ const App = () => {
     }
 
     axios
-      .get("http://localhost:3000/api/auth/me", { withCredentials: true })
+      .get("https://mern-chatbot-of4m.onrender.com/api/auth/me", {
+        withCredentials: true,
+      })
       .then((res) => dispatch(currentuser(res.data.user)))
       .catch(() => dispatch(currentuser(null)))
       .finally(() => dispatch(setLoading(false)));
@@ -35,9 +37,12 @@ const App = () => {
     const fetchChats = async () => {
       try {
         if (!user) return;
-        const res = await axios.get("http://localhost:3000/api/chat", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://mern-chatbot-of4m.onrender.com/api/chat",
+          {
+            withCredentials: true,
+          }
+        );
         dispatch(setChats(res.data.chats));
       } catch (err) {
         console.error(err);
