@@ -13,7 +13,7 @@ const SignUp = () => {
     const registerHandler = (data) => {
         axios
             .post(
-                "https://orin-ai-1.onrender.com/api/auth/register",
+                "https://orin-ai.onrender.com/api/auth/register",
                 {
                     fullname: {
                         firstname: data.firstname,

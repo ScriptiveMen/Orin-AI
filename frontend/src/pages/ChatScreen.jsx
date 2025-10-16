@@ -37,7 +37,7 @@ const ChatScreen = () => {
     };
 
     useEffect(() => {
-        const tempSocket = io("https://orin-ai-1.onrender.com", {
+        const tempSocket = io("https://orin-ai.onrender.com", {
             withCredentials: true,
         });
         tempSocket.on("ai-response", (message) => {

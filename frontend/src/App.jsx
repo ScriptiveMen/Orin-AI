@@ -25,7 +25,7 @@ const App = () => {
         }
 
         axios
-            .get("https://orin-ai-1.onrender.com/api/auth/me", {
+            .get("https://orin-ai.onrender.com/api/auth/me", {
                 withCredentials: true,
             })
             .then((res) => dispatch(currentuser(res.data.user)))
@@ -38,7 +38,7 @@ const App = () => {
             try {
                 if (!user) return;
                 const res = await axios.get(
-                    "https://orin-ai-1.onrender.com/api/chat",
+                    "https://orin-ai.onrender.com/api/chat",
                     {
                         withCredentials: true,
                     }

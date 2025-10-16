@@ -30,7 +30,7 @@ const Sidebar = ({ isSidebarOpen }) => {
         const newchat = prompt("Enter Chat Title");
         if (newchat && newchat.trim() != "") {
             const res = await axios.post(
-                "https://orin-ai-1.onrender.com/api/chat/",
+                "https://orin-ai.onrender.com/api/chat/",
                 { title: newchat },
                 { withCredentials: true }
             );
@@ -45,7 +45,7 @@ const Sidebar = ({ isSidebarOpen }) => {
 
             try {
                 const res = await axios.get(
-                    `https://orin-ai-1.onrender.com/api/chat/message/${activeId}`,
+                    `https://orin-ai.onrender.com/api/chat/message/${activeId}`,
                     { withCredentials: true }
                 );
 

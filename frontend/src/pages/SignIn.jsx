@@ -13,7 +13,7 @@ const SignIn = () => {
     const loginHandler = (data) => {
         axios
             .post(
-                "https://orin-ai-1.onrender.com/api/auth/login",
+                "https://orin-ai.onrender.com/api/auth/login",
                 {
                     email: data.email,
                     password: data.password,

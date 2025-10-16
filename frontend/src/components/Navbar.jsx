@@ -19,7 +19,7 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
     const handleLogout = async () => {
         try {
             await axios.post(
-                "https://orin-ai-1.onrender.com/api/auth/logout",
+                "https://orin-ai.onrender.com/api/auth/logout",
                 {},
                 { withCredentials: true }
             );
