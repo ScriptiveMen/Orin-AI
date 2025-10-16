@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainRoutes from "./routes/MainRoutes";
 import LayoutWrapper from "./layout/LayoutWrapper";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import axios from "./utils/axios";
 import { currentuser, setLoading } from "./store/slices/userSlice";
 import { setChats } from "./store/slices/chatSlice";
 import { ToastContainer } from "react-toastify";
@@ -24,12 +24,9 @@ const App = () => {
     useEffect(() => {
         const initializeUser = async () => {
             try {
-                const res = await axios.get(
-                    "http://localhost:3000/api/auth/me",
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const res = await axios.get("/api/auth/me", {
+                    withCredentials: true,
+                });
                 dispatch(currentuser(res.data.user));
             } catch (err) {
                 console.log("Not authenticated", err);
@@ -49,7 +46,7 @@ const App = () => {
 
         const fetchChats = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/chat", {
+                const res = await axios.get("/api/chat", {
                     withCredentials: true,
                 });
                 dispatch(setChats(res.data.chats));

@@ -44,10 +44,9 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
         const fetchMessages = async () => {
             if (!activeId) return;
             try {
-                const res = await axios.get(
-                    `http://localhost:3000/api/chat/message/${activeId}`,
-                    { withCredentials: true }
-                );
+                const res = await axios.get(`/api/chat/message/${activeId}`, {
+                    withCredentials: true,
+                });
                 const formattedMessage = res.data.messages.map((msg) => {
                     return {
                         message: msg.content,
