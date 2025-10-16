@@ -1,29 +1,25 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import axios from "../utils/axios";
 import { currentuser } from "../store/slices/userSlice";
 import { clearChats } from "../store/slices/chatSlice";
 import { clearMessages } from "../store/slices/messageSlice";
+import { useState } from "react";
 
 const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
     const { user } = useSelector((state) => state.auth);
-
     const location = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    if (location.pathname == "/login" || location.pathname == "/register") {
+    if (location.pathname === "/login" || location.pathname === "/register") {
         return null;
     }
 
     const handleLogout = async () => {
         try {
-            await axios.post(
-                "https://orin-ai.onrender.com/api/auth/logout",
-                {},
-                { withCredentials: true }
-            );
-
+            await axios.post("/api/auth/logout", {}, { withCredentials: true });
             dispatch(currentuser(null));
             dispatch(clearChats());
             dispatch(clearMessages());
@@ -34,59 +30,135 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
     };
 
     return (
-        <div className="absolute backdrop-blur-lg z-[999] top-0 left-0  w-full flex items-center justify-between px-5 md:px-10 py-3 md:py-5">
-            <div className="left w-full md:w-max flex items-baseline justify-between md:justify-center gap-5">
-                <h2 className="text-[1.4rem] md:text-[1.8rem] font-semibold">
-                    OrinAI
-                </h2>
-                <svg
-                    onClick={toggleSidebar}
-                    className={`cursor-pointer ${
-                        isSidebarOpen ? "opacity-60" : "opacity-100"
-                    }`}
-                    width="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM7 7C7.55229 7 8 7.44772 8 8V16C8 16.5523 7.55229 17 7 17C6.44772 17 6 16.5523 6 16V8C6 7.44772 6.44772 7 7 7Z"
-                        fill="currentColor"
-                    ></path>
-                </svg>
-            </div>
-            <div className="right flex items-center justify-center gap-3">
-                {user ? (
-                    <Link
-                        to={"#"}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleLogout();
-                        }}
-                        className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
+        <nav className="fixed top-0 left-0 right-0 z-[999] bg-gradient-to-b from-black/80 to-black/40 backdrop-blur-xl border-b border-white/10">
+            <div className=" px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
+                {/* Left Section - Logo & Sidebar Toggle */}
+                <div className="flex items-center gap-4">
+                    {/* Sidebar Toggle Button */}
+                    <button
+                        onClick={toggleSidebar}
+                        className={`p-2 md:hidden block rounded-lg transition-all duration-300 hover:bg-white/10 ${
+                            isSidebarOpen ? "bg-white/10" : "bg-white/5"
+                        }`}
+                        title="Toggle sidebar"
                     >
-                        Logout
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-white"
+                        >
+                            <line x1="4" y1="6" x2="20" y2="6"></line>
+                            <line x1="4" y1="12" x2="20" y2="12"></line>
+                            <line x1="4" y1="18" x2="20" y2="18"></line>
+                        </svg>
+                    </button>
+
+                    {/* Logo */}
+                    <Link
+                        to={user ? "/chat" : "/"}
+                        className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+                    >
+                        OrinAI
                     </Link>
-                ) : (
-                    <>
-                        <Link
-                            to={"/login"}
-                            className="py-1.5 hidden md:block px-3 bg-white text-black rounded-full text-sm"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            to={"/register"}
-                            className="py-1.5 hidden md:block px-3 border border-gray-600 rounded-full text-sm"
-                        >
-                            Sign up for free
-                        </Link>
-                    </>
-                )}
+                </div>
+
+                {/* Right Section - Auth/User Menu */}
+                <div className="flex items-center gap-3 md:gap-4">
+                    {user ? (
+                        <div className="relative">
+                            {/* User Profile Button */}
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all group"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+                                    {user?.fullname?.firstname?.[0]?.toUpperCase() ||
+                                        "U"}
+                                </div>
+                                <span className="hidden sm:block text-sm font-medium text-white truncate max-w-[120px]">
+                                    {user?.fullname?.firstname || "User"}
+                                </span>
+                                <svg
+                                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                                        dropdownOpen ? "rotate-180" : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                                    />
+                                </svg>
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-black/95 border border-white/20 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="px-4 py-3 border-b border-white/10">
+                                        <p className="text-sm font-medium text-white">
+                                            {user?.fullname?.firstname}{" "}
+                                            {user?.fullname?.lastname}
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            {user?.email}
+                                        </p>
+                                    </div>
+                                    <div className="px-2 py-2 space-y-1">
+                                        <button
+                                            onClick={() => {
+                                                setDropdownOpen(false);
+                                                handleLogout();
+                                            }}
+                                            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors text-sm font-medium"
+                                        >
+                                            <svg
+                                                className="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                                />
+                                            </svg>
+                                            Logout
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <Link
+                                to="/login"
+                                className="px-3 md:px-4 py-2 text-sm font-medium text-white rounded-lg hover:bg-white/10 transition-colors"
+                            >
+                                Log in
+                            </Link>
+                            <Link
+                                to="/register"
+                                className="px-3 md:px-4 py-2 text-sm font-medium text-black bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                Sign up
+                            </Link>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </nav>
     );
 };
 

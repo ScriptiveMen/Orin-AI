@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axios from "../utils/axios";
 import { useDispatch } from "react-redux";
 import { currentuser, setLoading } from "../store/slices/userSlice";
 import { toast } from "react-toastify";
@@ -11,9 +11,11 @@ const SignUp = () => {
     const dispatch = useDispatch();
 
     const registerHandler = (data) => {
+        dispatch(setLoading(true)); // Set loading to true when request starts
+
         axios
             .post(
-                "https://orin-ai.onrender.com/api/auth/register",
+                "/api/auth/register",
                 {
                     fullname: {
                         firstname: data.firstname,
@@ -25,14 +27,12 @@ const SignUp = () => {
                 { withCredentials: true }
             )
             .then((res) => {
-                navigate("/chat");
                 dispatch(currentuser(res.data.user));
+                navigate("/chat");
             })
             .catch((err) => {
                 console.log("Registration failed", err);
                 toast.error("Something went wrong!");
-            })
-            .finally(() => {
                 dispatch(setLoading(false));
             });
 

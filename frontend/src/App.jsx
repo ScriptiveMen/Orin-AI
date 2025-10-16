@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MainRoutes from "./routes/MainRoutes";
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
+import LayoutWrapper from "./layout/LayoutWrapper";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { currentuser, setLoading } from "./store/slices/userSlice";
@@ -10,62 +9,79 @@ import { ToastContainer } from "react-toastify";
 
 const App = () => {
     const dispatch = useDispatch();
-    const { user } = useSelector((state) => state.auth);
+    const { loading } = useSelector((state) => state.auth);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    // Desktop: sidebar open by default, Mobile: sidebar closed by default
+    const [isSidebarOpen, setIsSidebarOpen] = useState(
+        window.innerWidth >= 768
+    );
+
     const toggleSidebar = () => {
         setIsSidebarOpen((prev) => !prev);
     };
 
+    // Initialize user on app load
     useEffect(() => {
-        const token = document.cookie.includes("token");
-        if (!token) {
-            dispatch(currentuser(null));
-            return;
-        }
-
-        axios
-            .get("https://orin-ai.onrender.com/api/auth/me", {
-                withCredentials: true,
-            })
-            .then((res) => dispatch(currentuser(res.data.user)))
-            .catch(() => dispatch(currentuser(null)))
-            .finally(() => dispatch(setLoading(false)));
-    }, [dispatch]);
-
-    useEffect(() => {
-        const fetchChats = async () => {
+        const initializeUser = async () => {
             try {
-                if (!user) return;
                 const res = await axios.get(
-                    "https://orin-ai.onrender.com/api/chat",
+                    "http://localhost:3000/api/auth/me",
                     {
                         withCredentials: true,
                     }
                 );
+                dispatch(currentuser(res.data.user));
+            } catch (err) {
+                console.log("Not authenticated", err);
+                dispatch(currentuser(null));
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+        initializeUser();
+    }, [dispatch]);
+
+    // Fetch chats when user is authenticated
+    const { user } = useSelector((state) => state.auth);
+    useEffect(() => {
+        if (!user || loading) return;
+
+        const fetchChats = async () => {
+            try {
+                const res = await axios.get("http://localhost:3000/api/chat", {
+                    withCredentials: true,
+                });
                 dispatch(setChats(res.data.chats));
             } catch (err) {
-                console.error(err);
+                console.error("Failed to fetch chats:", err);
             }
         };
 
         fetchChats();
-    }, [user, dispatch]);
+    }, [dispatch, loading]);
+
+    // Show loading screen while checking authentication
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen w-screen bg-[#111]">
+                <div className="text-white text-xl">Loading...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="text-[#fff] h-screen w-screen">
-            <Navbar
-                toggleSidebar={toggleSidebar}
-                isSidebarOpen={isSidebarOpen}
-            />
+        <LayoutWrapper
+            isSidebarOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+        >
             <MainRoutes />
-            <Sidebar isSidebarOpen={isSidebarOpen} />
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
                 theme="dark"
             />
-        </div>
+        </LayoutWrapper>
     );
 };
 

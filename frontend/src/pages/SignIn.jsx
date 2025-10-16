@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axios from "../utils/axios";
 import { useDispatch } from "react-redux";
 import { currentuser, setLoading } from "../store/slices/userSlice";
 import { toast } from "react-toastify";
@@ -11,9 +11,11 @@ const SignIn = () => {
     const dispatch = useDispatch();
 
     const loginHandler = (data) => {
+        dispatch(setLoading(true)); // Set loading to true when request starts
+
         axios
             .post(
-                "https://orin-ai.onrender.com/api/auth/login",
+                "/api/auth/login",
                 {
                     email: data.email,
                     password: data.password,
@@ -21,14 +23,11 @@ const SignIn = () => {
                 { withCredentials: true }
             )
             .then((res) => {
-                navigate("/chat");
                 dispatch(currentuser(res.data.user));
+                navigate("/chat");
             })
             .catch((err) => {
-                toast.error("Invalid email or password!");
-            })
-            .finally(() => {
-                // stop loading no matter success or error
+                toast.error("Invalid email or password!", err);
                 dispatch(setLoading(false));
             });
 
@@ -77,23 +76,6 @@ const SignIn = () => {
                         />
                     </div>
 
-                    {/* Remember & Forgot */}
-                    <div className="flex items-center justify-between text-sm">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                className="rounded border-gray-600 bg-[#111] text-white"
-                            />
-                            <span className="text-gray-400">Remember me</span>
-                        </label>
-                        <button
-                            type="button"
-                            className="text-gray-300 hover:text-white font-medium"
-                        >
-                            Forgot password?
-                        </button>
-                    </div>
-
                     {/* Login Button */}
                     <button
                         type="submit"
@@ -105,7 +87,7 @@ const SignIn = () => {
 
                 {/* Footer */}
                 <p className="text-center text-sm text-gray-400 mt-6">
-                    Don’t have an account?{" "}
+                    Don't have an account?{" "}
                     <a
                         href="/register"
                         className="text-white font-medium hover:underline"

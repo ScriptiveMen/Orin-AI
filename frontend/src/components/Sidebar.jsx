@@ -1,173 +1,220 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addChat, selectChat } from "../store/slices/chatSlice";
-import axios from "axios";
-import { act, useEffect, useState } from "react";
+import { logout } from "../store/slices/userSlice";
+import axios from "../utils/axios";
+import { useEffect } from "react";
 import { setMessages } from "../store/slices/messageSlice";
 
-const Sidebar = ({ isSidebarOpen }) => {
+const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     const { user } = useSelector((state) => state.auth);
-
-    const homeMenus = [
-        "Research",
-        "Safety",
-        "For Business",
-        "For Developers",
-        "OrinAI",
-        "Stories",
-        "Company",
-        "News",
-    ];
-
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const AllChats = useSelector((state) => state.chats.chats);
     const activeId = useSelector((state) => state.chats.selectedChatId);
-
     const location = useLocation();
     const isChatPage = location.pathname.startsWith("/chat");
 
     const handleNewChat = async () => {
         const newchat = prompt("Enter Chat Title");
-        if (newchat && newchat.trim() != "") {
-            const res = await axios.post(
-                "https://orin-ai.onrender.com/api/chat/",
-                { title: newchat },
-                { withCredentials: true }
-            );
-            dispatch(addChat(res.data.chat));
-            dispatch(selectChat(res.data.chat.id));
+        if (newchat && newchat.trim() !== "") {
+            try {
+                const res = await axios.post(
+                    "/api/chat/",
+                    { title: newchat },
+                    { withCredentials: true }
+                );
+                dispatch(addChat(res.data.chat));
+                dispatch(selectChat(res.data.chat.id));
+            } catch (err) {
+                console.error("Error creating chat:", err);
+            }
+        }
+    };
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate("/login");
+        if (window.innerWidth < 768) {
+            toggleSidebar();
         }
     };
 
     useEffect(() => {
         const fetchMessages = async () => {
             if (!activeId) return;
-
             try {
                 const res = await axios.get(
-                    `https://orin-ai.onrender.com/api/chat/message/${activeId}`,
+                    `http://localhost:3000/api/chat/message/${activeId}`,
                     { withCredentials: true }
                 );
-
                 const formattedMessage = res.data.messages.map((msg) => {
                     return {
                         message: msg.content,
                         role: msg.role,
                     };
                 });
-
                 dispatch(setMessages(formattedMessage));
             } catch (err) {
-                console.log("Error while fetching messages", err);
+                console.error("Error while fetching messages", err);
             }
         };
-
         fetchMessages();
     }, [activeId, dispatch]);
 
-    if (location.pathname === "/login" || location.pathname === "/register") {
-        return;
-    }
-
     return (
-        <div
-            className={`fixed z-50 backdrop-blur-lg top-0 transition-transform duration-300 left-0 pt-20 md:pt-30 px-3 h-screen w-[15rem]
-      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-    `}
-        >
-            {!isChatPage ? (
-                <div className="content pt-7 md:pt-30 flex-col flex gap-1">
-                    {homeMenus.map((menu, idx) => {
-                        return (
-                            <div
-                                key={idx}
-                                className="py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-4  hover:bg-white/20 transition-colors"
-                            >
-                                {menu}
-                            </div>
-                        );
-                    })}
+        <>
+            {/* Backdrop */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={toggleSidebar}
+                />
+            )}
 
-                    <div className="bottom pl-6 px-2  flex items-center justify-between w-full h-12 absolute bottom-2 left-0">
-                        <svg
-                            className="opacity-60"
-                            width="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
+            {/* Sidebar */}
+            <div
+                className={`fixed z-50 top-0 left-0 h-screen w-64 bg-black border-r border-white/10 transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+            >
+                <div className="flex flex-col h-full pt-20">
+                    {/* New Chat Button */}
+                    <div className="px-3 py-4 border-b border-white/10">
+                        <button
+                            onClick={handleNewChat}
+                            className="w-full py-2.5 px-4 text-sm flex items-center justify-center gap-2 font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
                         >
-                            <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M2 12.3393C1.58579 12.3393 1.25 12.0035 1.25 11.5893L1.25 6.48933C1.25 4.55633 2.817 2.98933 4.75 2.98933L6.75 2.98933V1.97671C6.75 1.53439 7.2821 1.30991 7.59892 1.61858L9.38241 3.3562C9.58386 3.55246 9.58386 3.8762 9.38242 4.07246L7.59892 5.81008C7.2821 6.11875 6.75 5.89427 6.75 5.45196V4.48933L4.75 4.48933C3.64543 4.48933 2.75 5.38476 2.75 6.48933L2.75 11.5893C2.75 12.0035 2.41421 12.3393 2 12.3393ZM14 3.66067C14.4142 3.66067 14.75 3.99646 14.75 4.41067V9.51066C14.75 11.4437 13.183 13.0107 11.25 13.0107H9.25001V14.0233C9.25001 14.4656 8.7179 14.6901 8.40109 14.3814L6.61759 12.6438C6.41615 12.4475 6.41615 12.1238 6.61759 11.9275L8.40109 10.1899C8.7179 9.88124 9.25001 10.1057 9.25001 10.548V11.5107H11.25C12.3546 11.5107 13.25 10.6152 13.25 9.51066V4.41067C13.25 3.99646 13.5858 3.66067 14 3.66067Z"
-                                fill="currentColor"
-                            ></path>
-                        </svg>
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            <span>New Chat</span>
+                        </button>
+                    </div>
 
-                        <div className="px-3 block md:hidden  py-2 rounded-full text-sm bg-[#212121]">
-                            Log in
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="content-chat">
-                    <div
-                        onClick={handleNewChat}
-                        className="py-2 px-3 text-sm flex items-baseline justify-start gap-1 font-light cursor-pointer rounded-[0.5rem]  hover:bg-white/5 transition-colors"
-                    >
-                        <i className="ri-sticky-note-add-line text-lg"></i>
-                        <span>New Chat</span>
-                    </div>
-                    <h4 className="px-3  pt-7 font-thin text-[#949494]">
-                        Chats
-                    </h4>
-                    <div className="chats pt-2 h-[100vh] md:h-[92vh] ">
-                        <div className="chats h-[70%] overflow-y-scroll">
-                            {AllChats.length == 0 ? (
-                                <div className="py-2 text-sm font-light text-center text-[#949494]">
-                                    No chats available
+                    {/* Chat History */}
+                    <div className="flex-1 overflow-hidden px-3">
+                        <h4 className="py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Recent Chats
+                        </h4>
+                        <div
+                            className="overflow-y-auto h-[calc(100%-3rem)] pr-1"
+                            style={{
+                                scrollbarWidth: "thin",
+                                scrollbarColor: "#333 transparent",
+                            }}
+                        >
+                            {AllChats.length === 0 ? (
+                                <div className="py-8 text-center">
+                                    <svg
+                                        className="w-12 h-12 mx-auto mb-3 text-gray-700"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1.5}
+                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                        />
+                                    </svg>
+                                    <p className="text-sm text-gray-500">
+                                        No chats yet
+                                    </p>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                        Start a new conversation
+                                    </p>
                                 </div>
                             ) : (
-                                AllChats.map((chat, idx) => {
-                                    return (
-                                        <div
-                                            key={idx}
-                                            onClick={() =>
-                                                dispatch(selectChat(chat._id))
-                                            }
-                                            className={`py-2 text-sm font-light cursor-pointer rounded-[0.5rem] px-3  hover:bg-white/5 ${
-                                                activeId == chat._id ||
-                                                activeId === chat.id
-                                                    ? "border border-[#606060]"
-                                                    : ""
-                                            }`}
-                                        >
-                                            {chat.title}
-                                        </div>
-                                    );
-                                }).reverse()
+                                <div className="space-y-1 pb-4">
+                                    {[...AllChats]
+                                        .reverse()
+                                        .map((chat, idx) => {
+                                            const isActive =
+                                                activeId === chat._id ||
+                                                activeId === chat.id;
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() =>
+                                                        dispatch(
+                                                            selectChat(
+                                                                chat._id ||
+                                                                    chat.id
+                                                            )
+                                                        )
+                                                    }
+                                                    className={`
+                        group relative py-2.5 px-3 text-sm cursor-pointer rounded-lg transition-all
+                        ${
+                            isActive
+                                ? "bg-white/10 text-white border border-white/10"
+                                : "text-gray-400 hover:bg-white/5 hover:text-white"
+                        }
+                      `}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <svg
+                                                            className="w-4 h-4 flex-shrink-0"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                                            />
+                                                        </svg>
+                                                        <span className="truncate flex-1">
+                                                            {chat.title}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                </div>
                             )}
                         </div>
-                        <div className="profile gap-2 h-[10%] flex items-center justify-start px-4 w-full">
-                            <div className="circle h-7 w-7 rounded-full bg-blue-500 flex items-center justify-center">
-                                {user?.fullname?.firstname[0]?.toUpperCase()}
-                            </div>
-                            <div className="text">
-                                <p className="leading-5">
-                                    {user?.fullname?.firstname}
-                                </p>
-                                <span className="block font-thin text-[#949494]  text-[0.7rem]">
-                                    Free
-                                </span>
-                            </div>
+                    </div>
+
+                    {/* Plan Info */}
+                    <div className="p-4 border-t border-white/10">
+                        <div className="flex items-center gap-3">
+                            <svg
+                                className="w-5 h-5 text-gray-400 flex-shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                                />
+                            </svg>
+                            <span className="text-xs text-gray-400">
+                                Free Plan
+                            </span>
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+        </>
     );
 };
 
 export default Sidebar;
-
-//
